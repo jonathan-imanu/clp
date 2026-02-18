@@ -135,15 +135,6 @@ template <
  */
 [[nodiscard]] auto ir_error_code_to_errc(IRErrorCode ir_error_code) -> std::errc;
 
-/**
- * Temporary conversion function that maps the C-style `IRErrorCode` enum to the `IrErrorCode` type.
- * This function will be removed once the full migration from `IRErrorCode` to `IrErrorCode` is
- * complete.
- * @param ir_error_code Must not be `IRErrorCode_Success`.
- * @return Equivalent `IrErrorCode` indicating the same error type.
- */
-[[nodiscard]] auto to_ir_error_code(IRErrorCode ir_error_code) -> IrErrorCode;
-
 template <IntegerType integer_t>
 auto serialize_int(integer_t value, std::vector<int8_t>& output_buf) -> void {
     integer_t value_big_endian{};
