@@ -203,9 +203,7 @@ auto schema_tree_node_tag_to_type(encoded_tag_t tag) -> std::optional<SchemaTree
 auto deserialize_schema_tree_node_parent_id(ReaderInterface& reader)
         -> ystdlib::error_handling::Result<std::pair<bool, SchemaTree::Node::id_t>> {
     encoded_tag_t tag{};
-    if (auto const err{deserialize_tag(reader, tag)}; IRErrorCode_Success != err) {
-        return to_ir_error_code(err);
-    }
+    YSTDLIB_ERROR_HANDLING_TRYV(deserialize_tag(reader, tag));
     return deserialize_and_decode_schema_tree_node_id<
             cProtocol::Payload::EncodedSchemaTreeNodeParentIdByte,
             cProtocol::Payload::EncodedSchemaTreeNodeParentIdShort,
@@ -216,9 +214,7 @@ auto deserialize_schema_tree_node_parent_id(ReaderInterface& reader)
 auto deserialize_schema_tree_node_key_name(ReaderInterface& reader, std::string& key_name)
         -> ystdlib::error_handling::Result<void, IrErrorCode> {
     encoded_tag_t str_packet_tag{};
-    if (auto const err{deserialize_tag(reader, str_packet_tag)}; IRErrorCode_Success != err) {
-        return to_ir_error_code(err);
-    }
+    YSTDLIB_ERROR_HANDLING_TRYV(deserialize_tag(reader, str_packet_tag));
     YSTDLIB_ERROR_HANDLING_TRYV(deserialize_string(reader, str_packet_tag, key_name));
     return ystdlib::error_handling::success();
 }
@@ -309,9 +305,7 @@ auto deserialize_auto_gen_node_id_value_pairs_and_user_gen_schema(
 
         // Advance to the next tag. This is needed no matter whether the deserialized node ID is
         // auto-generated.
-        if (auto const err{deserialize_tag(reader, tag)}; IRErrorCode_Success != err) {
-            return to_ir_error_code(err);
-        }
+        YSTDLIB_ERROR_HANDLING_TRYV(deserialize_tag(reader, tag));
 
         auto const [is_auto_generated, node_id]{schema_tree_node_id_result.value()};
         if (false == is_auto_generated) {
@@ -327,9 +321,7 @@ auto deserialize_auto_gen_node_id_value_pairs_and_user_gen_schema(
                 node_id,
                 auto_gen_node_id_value_pairs
         ));
-        if (auto const err{deserialize_tag(reader, tag)}; IRErrorCode_Success != err) {
-            return to_ir_error_code(err);
-        }
+        YSTDLIB_ERROR_HANDLING_TRYV(deserialize_tag(reader, tag));
     }
 
     // Deserialize any remaining user-generated node IDs
@@ -348,9 +340,7 @@ auto deserialize_auto_gen_node_id_value_pairs_and_user_gen_schema(
         }
         user_gen_schema.push_back(node_id);
 
-        if (auto const err{deserialize_tag(reader, tag)}; IRErrorCode_Success != err) {
-            return to_ir_error_code(err);
-        }
+        YSTDLIB_ERROR_HANDLING_TRYV(deserialize_tag(reader, tag));
     }
 
     return {std::move(auto_gen_node_id_value_pairs), std::move(user_gen_schema)};
@@ -429,16 +419,13 @@ template <ir::EncodedVariableTypeReq encoded_variable_t>
         KeyValuePairLogEvent::NodeIdValuePairs& node_id_value_pairs
 ) -> ystdlib::error_handling::Result<void, IrErrorCode> {
     encoded_tag_t tag{};
-    if (auto const err{deserialize_tag(reader, tag)}; IRErrorCode_Success != err) {
-        return to_ir_error_code(err);
-    }
+    YSTDLIB_ERROR_HANDLING_TRYV(deserialize_tag(reader, tag));
 
-    auto encoded_text_ast_result{deserialize_encoded_text_ast<encoded_variable_t>(reader, tag)};
-    if (encoded_text_ast_result.has_error()) {
-        return to_ir_error_code(encoded_text_ast_result.error());
-    }
+    auto encoded_text_ast_result = YSTDLIB_ERROR_HANDLING_TRYX(
+            deserialize_encoded_text_ast<encoded_variable_t>(reader, tag)
+    );
 
-    node_id_value_pairs.emplace(node_id, Value{std::move(encoded_text_ast_result.value())});
+    node_id_value_pairs.emplace(node_id, Value{std::move(encoded_text_ast_result)});
     return ystdlib::error_handling::success();
 }
 
@@ -464,9 +451,7 @@ auto deserialize_value_and_construct_node_id_value_pairs(
         ));
 
         if (schema.size() != node_id_value_pairs.size()) {
-            if (auto const err{deserialize_tag(reader, tag)}; IRErrorCode_Success != err) {
-                return to_ir_error_code(err);
-            }
+            YSTDLIB_ERROR_HANDLING_TRYV(deserialize_tag(reader, tag));
         }
     }
     return ystdlib::error_handling::success();
@@ -541,11 +526,7 @@ auto deserialize_ir_unit_schema_tree_node_insertion(
 auto deserialize_ir_unit_utc_offset_change(ReaderInterface& reader)
         -> ystdlib::error_handling::Result<UtcOffset> {
     UtcOffset utc_offset{};
-    if (auto const err{deserialize_utc_offset_change(reader, utc_offset)};
-        IRErrorCode_Success != err)
-    {
-        return to_ir_error_code(err);
-    }
+    YSTDLIB_ERROR_HANDLING_TRYV(deserialize_utc_offset_change(reader, utc_offset));
     return utc_offset;
 }
 

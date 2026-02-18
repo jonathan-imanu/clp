@@ -91,10 +91,7 @@ TEMPLATE_TEST_CASE(
     ir_reader.open(ir_test_file);
 
     bool uses_four_byte_encoding{false};
-    REQUIRE(
-            (IRErrorCode_Success
-             == clp::ffi::ir_stream::get_encoding_type(ir_reader, uses_four_byte_encoding))
-    );
+    REQUIRE(clp::ffi::ir_stream::get_encoding_type(ir_reader, uses_four_byte_encoding).has_value());
     REQUIRE((is_same_v<TestType, four_byte_encoded_variable_t> == uses_four_byte_encoding));
 
     auto result = LogEventDeserializer<TestType>::create(ir_reader);
